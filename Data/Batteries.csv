@@ -1,0 +1,5 @@
+Manufacturer,Model,Chemistry,Usable kWh,Nominal V,Capacity Ah,Cont Charge A,Cont Discharge A,Peak A,Weight lb,Closed Loop with Sol-Ark,Comm/Interface,Ballpark $/battery,Notes
+Discover,Discover Helios ESS,LiFePO4,16,51.2,314,160,160,400,330,Yes,Closed-loop / LYNK or native per current integration,4900,Preferred current candidate; verify integration kit/firmware
+Pytes,Pytes V16,LiFePO4,16,51.2,314,160,160,200,320,Yes,CAN/RS485,3700,Strong alternative; verify listing with installer
+HomeGrid,Stack'd Series 19.2,LiFePO4,19.2,51.2,375,200,200,300,500,Yes,CAN/RS485,7200,Expandable modular system
+Fortress,eBoost 16,LiFePO4,16,51.2,314,160,160,200,320,Verify,CAN/RS485,5200,Replacement direction for eVault; verify Sol-Ark closed loop
