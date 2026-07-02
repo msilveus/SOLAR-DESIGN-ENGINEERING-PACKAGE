@@ -104,3 +104,119 @@ GUI.
 -   Shade engine
 -   GUI migration
 -   Database versioning
+
+------------------------------------------------------------------------
+
+## Project Philosophy
+
+SDEP is being developed as an engineering application whose first
+implementation happens to use Microsoft Excel as its host environment.
+
+The project architecture intentionally separates:
+
+-   Data
+-   Engineering Logic
+-   User Interface
+-   Documentation
+
+This separation enables long-term maintainability and provides a
+migration path to future desktop or web applications while preserving
+the engineering model.
+
+------------------------------------------------------------------------
+
+## DD-010 -- Database Abstraction Layer
+
+**Status:** Accepted
+
+**Decision:** All engineering data shall be accessed exclusively through
+the `modDatabase` module. No worksheet, calculation module, or VBA
+routine outside `modDatabase` shall directly reference `DB_*`
+worksheets.
+
+**Reasoning**
+
+-   Decouples engineering calculations from storage.
+-   Eliminates direct worksheet dependencies.
+-   Supports future migration to other platforms.
+
+------------------------------------------------------------------------
+
+## DD-011 -- Header-Based Field Resolution
+
+**Status:** Accepted
+
+**Decision:** Database fields shall be identified by header names rather
+than fixed column letters or column numbers.
+
+**Reasoning**
+
+-   Column order becomes irrelevant.
+-   New fields may be inserted without code changes.
+-   Eliminates magic numbers.
+
+------------------------------------------------------------------------
+
+## DD-012 -- Database Cache Architecture
+
+**Status:** Accepted
+
+**Decision:** External CSV files remain the authoritative data source.
+Internal `DB_*` worksheets function only as runtime cache tables
+populated during workbook initialization.
+
+------------------------------------------------------------------------
+
+## DD-013 -- Layered Software Architecture
+
+**Status:** Accepted
+
+**Decision:**
+
+    CSV Files
+        │
+    Import Engine
+        │
+    Database Cache
+        │
+    Database API (modDatabase)
+        │
+    Engineering Engine
+        │
+    User Interface
+
+Each layer communicates only with the layer immediately below it.
+
+------------------------------------------------------------------------
+
+## DD-014 -- Workbook as a Host Application
+
+**Status:** Accepted
+
+**Decision:** Excel is the host environment rather than the engineering
+engine. Engineering logic resides primarily in reusable VBA modules
+while worksheets provide user interface, visualization, and reporting.
+
+------------------------------------------------------------------------
+
+## DD-015 -- Dynamic User Interface
+
+**Status:** Accepted
+
+**Decision:** User interface elements shall be generated dynamically
+from imported databases during workbook initialization.
+
+------------------------------------------------------------------------
+
+## DD-016 -- Schema Agnostic Databases
+
+**Status:** Accepted
+
+**Decision:** The software shall never depend upon a fixed column order
+within any CSV database. Field discovery shall always occur through
+header lookup.
+
+**Reasoning**
+
+-   Database schemas are expected to evolve.
+-   Future expansion should not require code changes.
