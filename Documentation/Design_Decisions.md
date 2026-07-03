@@ -220,3 +220,29 @@ header lookup.
 
 -   Database schemas are expected to evolve.
 -   Future expansion should not require code changes.
+
+------------------------------------------------------------------------
+
+## DD-017 -- Stable Object Identifiers
+
+**Status:** Accepted
+
+**Decision:** Every engineering object shall have a permanent, immutable
+identifier (`ID`). User interfaces may display descriptive names, but all
+internal references, relationships, and calculations shall use the object ID.
+
+**ID Format**
+
+- `P000001` -- Panel
+- `B000001` -- Battery
+- `I000001` -- Inverter
+- `R000001` -- Racking
+- `W000001` -- Wire
+- `C000001` -- Conduit
+
+**Reasoning**
+
+- Product names can change; IDs should not.
+- Supports relational links between databases.
+- Simplifies imports, exports, and future migrations.
+- Makes SDEP database-ready from the beginning.
