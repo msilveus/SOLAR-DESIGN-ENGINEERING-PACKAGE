@@ -31,3 +31,18 @@ End Sub
 ```
 
 Then place the `Data` folder next to the workbook.
+
+
+## v4.2a fix
+- Corrected Data/Panels.csv. Previous package only contained the first header token.
+
+## v4.2b Database ID Update
+
+The equipment CSV files now use stable object identifiers in the first column:
+
+- `P000001` = panel record
+- `B000001` = battery record
+- `I000001` = inverter record
+
+These IDs are intended to be immutable database keys. Display names may change, but internal references should use the ID field.
+

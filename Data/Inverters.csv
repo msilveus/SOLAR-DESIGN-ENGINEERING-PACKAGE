@@ -1,3 +1,3 @@
-Manufacturer,Model,MPPT Min V,MPPT Max V,PV Max Voc V,Max Operating A/MPPT,Max Isc A/MPPT,MPPT Count,Strings/MPPT,Max PV kW,AC Output kW,Ballpark $,Notes
-Sol-Ark,Sol-Ark 18K-2P-LV,150,425,500,36,54,3,2,30,18,7900,Use current Sol-Ark manual/datasheet for final design
-Sol-Ark,Sol-Ark 15K,175,425,500,26,44,3,2,19.5,15,6900,Older/common baseline; verify manual
+ID,Manufacturer,Model,MPPT Min V,MPPT Max V,PV Max Voc V,Max Operating A/MPPT,Max Isc A/MPPT,MPPT Count,Strings/MPPT,Max PV kW,AC Output kW,Ballpark $,Notes
+I000001,Sol-Ark,Sol-Ark 18K-2P-LV,150,425,500,36,54,3,2,30,18,7900,Use current Sol-Ark manual/datasheet for final design
+I000002,Sol-Ark,Sol-Ark 15K,175,425,500,26,44,3,2,19.5,15,6900,Older/common baseline; verify manual
