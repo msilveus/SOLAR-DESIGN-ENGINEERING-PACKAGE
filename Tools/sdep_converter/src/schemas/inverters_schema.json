@@ -1,0 +1,131 @@
+{
+  "version": 1.0,
+  "database": "Inverters",
+  "input": "Data/Inverters.csv",
+  "output": "DataJson/inverters.json",
+  "primaryKey": "ID",
+  "requiredFields": [
+    "ID",
+    "Manufacturer",
+    "Model",
+    "MPPT Min V",
+    "MPPT Max V",
+    "PV Max Voc V",
+    "Max Operating A/MPPT",
+    "Max Isc A/MPPT",
+    "MPPT Count",
+    "Strings/MPPT",
+    "Max PV kW",
+    "AC Output kW"
+  ],
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^I[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "MPPT Min V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "MPPT Max V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "PV Max Voc V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Max Operating A/MPPT": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Max Isc A/MPPT": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "MPPT Count": {
+      "type": "number",
+      "min": 1
+    },
+    "Strings/MPPT": {
+      "type": "number",
+      "min": 1
+    },
+    "Max PV kW": {
+      "type": "number",
+      "min": 0,
+      "units": "kW"
+    },
+    "AC Output kW": {
+      "type": "number",
+      "min": 0,
+      "units": "kW"
+    },
+    "Ballpark $": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Notes": {
+      "type": "string",
+      "optional": true
+    }
+  },
+  "engineeringChecks": [
+    {
+      "name": "MPPT Max V > MPPT Min V",
+      "type": "field_greater_than",
+      "left": "MPPT Max V",
+      "right": "MPPT Min V",
+      "severity": "error"
+    },
+    {
+      "name": "PV Max Voc V >= MPPT Max V",
+      "type": "field_greater_equal",
+      "left": "PV Max Voc V",
+      "right": "MPPT Max V",
+      "severity": "error"
+    },
+    {
+      "name": "Max Isc A/MPPT >= Max Operating A/MPPT",
+      "type": "field_greater_equal",
+      "left": "Max Isc A/MPPT",
+      "right": "Max Operating A/MPPT",
+      "severity": "error"
+    },
+    {
+      "name": "MPPT Count integer",
+      "type": "integer",
+      "field": "MPPT Count",
+      "severity": "error"
+    },
+    {
+      "name": "Strings/MPPT integer",
+      "type": "integer",
+      "field": "Strings/MPPT",
+      "severity": "error"
+    },
+    {
+      "name": "Max PV kW >= AC Output kW",
+      "type": "field_greater_equal",
+      "left": "Max PV kW",
+      "right": "AC Output kW",
+      "severity": "warning"
+    }
+  ]
+}

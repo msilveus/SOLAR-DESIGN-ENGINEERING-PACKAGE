@@ -1,0 +1,10 @@
+[package]
+name = "sdep_engine"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "sdep_engine"
+crate-type = ["cdylib"]
+
+[dependencies]

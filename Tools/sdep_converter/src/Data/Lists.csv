@@ -1,0 +1,8 @@
+String IDs,Orientation,Mount Type,MPPT Mode,MPPT
+S1,Portrait,Single Mount,Manual,MPPT1
+S2,Landscape,Split Banks,Symmetric Pairing,MPPT2
+S3,,Future,,MPPT3
+S4,,,,
+S5,,,,
+S6,,,,
+Unassigned,,,,
