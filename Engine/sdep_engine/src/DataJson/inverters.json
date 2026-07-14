@@ -1,0 +1,41 @@
+{
+  "header": {
+    "databaseName": "Inverters",
+    "recordCount": 2,
+    "version": 1.0
+  },
+  "records": [
+    {
+      "AC Output kW": 18,
+      "Ballpark $": 7900,
+      "ID": "I000001",
+      "MPPT Count": 3,
+      "MPPT Max V": 425,
+      "MPPT Min V": 150,
+      "Manufacturer": "Sol-Ark",
+      "Max Isc A/MPPT": 54,
+      "Max Operating A/MPPT": 36,
+      "Max PV kW": 30,
+      "Model": "Sol-Ark 18K-2P-LV",
+      "Notes": "Use current Sol-Ark manual/datasheet for final design",
+      "PV Max Voc V": 500,
+      "Strings/MPPT": 2
+    },
+    {
+      "AC Output kW": 15,
+      "Ballpark $": 6900,
+      "ID": "I000002",
+      "MPPT Count": 3,
+      "MPPT Max V": 425,
+      "MPPT Min V": 175,
+      "Manufacturer": "Sol-Ark",
+      "Max Isc A/MPPT": 44,
+      "Max Operating A/MPPT": 26,
+      "Max PV kW": 19.5,
+      "Model": "Sol-Ark 15K",
+      "Notes": "Older/common baseline; verify manual",
+      "PV Max Voc V": 500,
+      "Strings/MPPT": 2
+    }
+  ]
+}
