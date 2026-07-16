@@ -18,12 +18,13 @@ Option Explicit
     Public Declare PtrSafe Function sdep_get_panels_ballpark_panel Lib "sdep_engine.dll" (ByVal id As String, ByRef out_value As Double) As Long
     Public Declare PtrSafe Function sdep_get_panels_manufacturer Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_panels_model Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
+    Public Declare PtrSafe Function sdep_get_panels_model_list Lib "sdep_engine.dll" (ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_panels_source_notes Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
 #End If
 
 Private Function PNum(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As Double
     Dim status As Long, value As Double
-    EnsureEngineInitialized
+    EnsureDllInitialized
     Select Case selector
         Case 1: status = sdep_get_panels_vmp(id, value)
         Case 2: status = sdep_get_panels_voc(id, value)
@@ -46,7 +47,7 @@ End Function
 
 Private Function PStr(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     Select Case selector
         Case 1: status = sdep_get_panels_manufacturer(id, StrPtr(buf), Len(buf))
@@ -59,29 +60,174 @@ End Function
 
 Public Function PanelIDs() As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     status = sdep_get_panels_ids(StrPtr(buf), Len(buf))
     PanelIDs = ReadUtf16String(status, buf, "PanelIDs")
 End Function
 
-Public Function PanelVmp(ByVal PanelID As String) As Double: PanelVmp = PNum(PanelID, 1, "PanelVmp"): End Function
-Public Function PanelVoc(ByVal PanelID As String) As Double: PanelVoc = PNum(PanelID, 2, "PanelVoc"): End Function
-Public Function PanelImp(ByVal PanelID As String) As Double: PanelImp = PNum(PanelID, 3, "PanelImp"): End Function
-Public Function PanelIsc(ByVal PanelID As String) As Double: PanelIsc = PNum(PanelID, 4, "PanelIsc"): End Function
-Public Function PanelWatts(ByVal PanelID As String) As Double: PanelWatts = PNum(PanelID, 5, "PanelWatts"): End Function
-Public Function PanelVocTempCoeff(ByVal PanelID As String) As Double: PanelVocTempCoeff = PNum(PanelID, 6, "PanelVocTempCoeff"): End Function
-Public Function PanelPmaxTempCoeff(ByVal PanelID As String) As Double: PanelPmaxTempCoeff = PNum(PanelID, 7, "PanelPmaxTempCoeff"): End Function
-Public Function PanelWidthMm(ByVal PanelID As String) As Double: PanelWidthMm = PNum(PanelID, 8, "PanelWidthMm"): End Function
-Public Function PanelLengthMm(ByVal PanelID As String) As Double: PanelLengthMm = PNum(PanelID, 9, "PanelLengthMm"): End Function
-Public Function PanelWeightLb(ByVal PanelID As String) As Double: PanelWeightLb = PNum(PanelID, 10, "PanelWeightLb"): End Function
-Public Function PanelSeriesFuseA(ByVal PanelID As String) As Double: PanelSeriesFuseA = PNum(PanelID, 11, "PanelSeriesFuseA"): End Function
-Public Function PanelMaxSystemV(ByVal PanelID As String) As Double: PanelMaxSystemV = PNum(PanelID, 12, "PanelMaxSystemV"): End Function
-Public Function PanelBallparkCost(ByVal PanelID As String) As Double: PanelBallparkCost = PNum(PanelID, 13, "PanelBallparkCost"): End Function
-Public Function PanelManufacturer(ByVal PanelID As String) As String: PanelManufacturer = PStr(PanelID, 1, "PanelManufacturer"): End Function
-Public Function PanelModel(ByVal PanelID As String) As String: PanelModel = PStr(PanelID, 2, "PanelModel"): End Function
-Public Function PanelSourceNotes(ByVal PanelID As String) As String: PanelSourceNotes = PStr(PanelID, 3, "PanelSourceNotes"): End Function
+Public Function PanelModels() As String
+    Dim status As Long, buf As String
+    EnsureDllInitialized
+    buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
+    status = sdep_get_panels_model_list(StrPtr(buf), Len(buf))
+    PanelModels = ReadUtf16String(status, buf, "PanelModels")
+End Function
+
+Public Function PanelVmpByID(ByVal PanelID As String) As Double
+    PanelVmpByID = PNum(PanelID, 1, "PanelVmpByID")
+End Function
+
+Public Function PanelVocByID(ByVal PanelID As String) As Double
+    PanelVocByID = PNum(PanelID, 2, "PanelVocByID")
+End Function
+
+Public Function PanelImpByID(ByVal PanelID As String) As Double
+    PanelImpByID = PNum(PanelID, 3, "PanelImpByID")
+End Function
+
+Public Function PanelIscByID(ByVal PanelID As String) As Double
+    PanelIscByID = PNum(PanelID, 4, "PanelIscByID")
+End Function
+
+Public Function PanelWattsByID(ByVal PanelID As String) As Double
+    PanelWattsByID = PNum(PanelID, 5, "PanelWattsByID")
+End Function
+
+Public Function PanelVocTempCoeffByID(ByVal PanelID As String) As Double
+    PanelVocTempCoeffByID = PNum(PanelID, 6, "PanelVocTempCoeffByID")
+End Function
+
+Public Function PanelPmaxTempCoeffByID(ByVal PanelID As String) As Double
+    PanelPmaxTempCoeffByID = PNum(PanelID, 7, "PanelPmaxTempCoeffByID")
+End Function
+
+Public Function PanelWidthMmByID(ByVal PanelID As String) As Double
+    PanelWidthMmByID = PNum(PanelID, 8, "PanelWidthMmByID")
+End Function
+
+Public Function PanelWidthFtByID(ByVal PanelID As String) As Double
+    PanelWidthFtByID = (PNum(PanelID, 8, "PanelWidthMmByID")) / 304.8
+End Function
+
+Public Function PanelLengthMmByID(ByVal PanelID As String) As Double
+    PanelLengthMmByID = PNum(PanelID, 9, "PanelLengthMmByID")
+End Function
+
+Public Function PanelLengthFtByID(ByVal PanelID As String) As Double
+    PanelLengthFtByID = (PNum(PanelID, 9, "PanelLengthMmByID")) / 304.8
+End Function
+
+Public Function PanelWeightLbByID(ByVal PanelID As String) As Double
+    PanelWeightLbByID = PNum(PanelID, 10, "PanelWeightLbByID")
+End Function
+
+Public Function PanelSeriesFuseAByID(ByVal PanelID As String) As Double
+    PanelSeriesFuseAByID = PNum(PanelID, 11, "PanelSeriesFuseAByID")
+End Function
+
+Public Function PanelMaxSystemVByID(ByVal PanelID As String) As Double
+    PanelMaxSystemVByID = PNum(PanelID, 12, "PanelMaxSystemVByID")
+End Function
+
+Public Function PanelBallparkCostByID(ByVal PanelID As String) As Double
+    PanelBallparkCostByID = PNum(PanelID, 13, "PanelBallparkCostByID")
+End Function
+
+Public Function PanelManufacturerByID(ByVal PanelID As String) As String
+    PanelManufacturerByID = PStr(PanelID, 1, "PanelManufacturerByID")
+End Function
+
+Public Function PanelModelByID(ByVal PanelID As String) As String
+    PanelModelByID = PStr(PanelID, 2, "PanelModelByID")
+End Function
+
+Public Function PanelSourceNotesByID(ByVal PanelID As String) As String
+    PanelSourceNotesByID = PStr(PanelID, 3, "PanelSourceNotesByID")
+End Function
+
+Public Function PanelVmp() As Double
+    PanelVmp = PanelVmpByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelVoc() As Double
+    PanelVoc = PanelVocByID(SelectedPanelIDCell)
+    End Function
+
+Public Function PanelImp() As Double
+    PanelImp = PanelImpByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelIsc() As Double
+    PanelIsc = PanelIscByID(SelectedPanelIDCell)
+End Function
+
+Public Function panelwatts() As Double
+    panelwatts = PanelWattsByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelVocTempCoeff() As Double
+    PanelVocTempCoeff = PanelVocTempCoeffByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelPmaxTempCoeff() As Double
+    PanelPmaxTempCoeff = PanelPmaxTempCoeffByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelWidthMm() As Double
+    PanelWidthMm = PanelWidthMmByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelLengthMm() As Double
+    PanelLengthMm = PanelLengthMmByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelWeightLb() As Double
+    PanelWeightLb = PanelWeightLbByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelSeriesFuseA() As Double
+    PanelSeriesFuseA = PanelSeriesFuseAByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelMaxSystemV() As Double
+    PanelMaxSystemV = PanelMaxSystemVByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelBallparkCost() As Double
+    PanelBallparkCost = PanelBallparkCostByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelManufacturer() As String
+    PanelManufacturer = PanelManufacturerByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelModel() As String
+    PanelModel = PanelModelByID(SelectedPanelIDCell)
+End Function
+
+Public Function PanelSourceNotes() As String
+    PanelSourceNotes = PanelSourceNotesByID(SelectedPanelIDCell)
+End Function
+
+Public Function GetPanelWatts(ByVal PanelID As String) As Double
+    GetPanelWatts = PNum(PanelID, 5, "GetPanelWatts")
+End Function
 
 Public Sub TestPanelIDs()
     MsgBox "Panel IDs:" & vbCrLf & PanelIDs(), vbInformation, "SDEP Panel ID Test"
 End Sub
+
+Public Sub TestPanelModels()
+    MsgBox "Panel Models:" & vbCrLf & PanelModels(), vbInformation, "SDEP Panel Model Test"
+End Sub
+
+Public Sub TestPanelWatts()
+    MsgBox "Panel Watts:" & vbCrLf & GetPanelWatts(SelectedPanelIDCell), vbInformation, "SDEP Panel Watts Test"
+End Sub
+
+Public Sub TestTotalPanels()
+    MsgBox "Total Panels:" & vbCrLf & DesignTotalPanels(), vbInformation, "SDEP Total Panels Test"
+End Sub
+
+

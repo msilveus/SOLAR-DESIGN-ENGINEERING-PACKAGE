@@ -15,12 +15,13 @@ Option Explicit
     Public Declare PtrSafe Function sdep_get_inverters_ballpark Lib "sdep_engine.dll" (ByVal id As String, ByRef out_value As Double) As Long
     Public Declare PtrSafe Function sdep_get_inverters_manufacturer Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_inverters_model Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
+    Public Declare PtrSafe Function sdep_get_inverters_model_list Lib "sdep_engine.dll" (ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_inverters_notes Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
 #End If
 
 Private Function INum(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As Double
     Dim status As Long, value As Double
-    EnsureEngineInitialized
+    EnsureDllInitialized
     Select Case selector
         Case 1: status = sdep_get_inverters_mppt_min_v(id, value)
         Case 2: status = sdep_get_inverters_mppt_max_v(id, value)
@@ -40,7 +41,7 @@ End Function
 
 Private Function IStr(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     Select Case selector
         Case 1: status = sdep_get_inverters_manufacturer(id, StrPtr(buf), Len(buf))
@@ -53,10 +54,18 @@ End Function
 
 Public Function InverterIDs() As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     status = sdep_get_inverters_ids(StrPtr(buf), Len(buf))
     InverterIDs = ReadUtf16String(status, buf, "InverterIDs")
+End Function
+
+Public Function InverterModels() As String
+    Dim status As Long, buf As String
+    EnsureDllInitialized
+    buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
+    status = sdep_get_inverters_model_list(StrPtr(buf), Len(buf))
+    InverterModels = ReadUtf16String(status, buf, "InverterModels")
 End Function
 
 Public Function InverterMpptMinV(ByVal InverterID As String) As Double: InverterMpptMinV = INum(InverterID, 1, "InverterMpptMinV"): End Function
@@ -76,3 +85,8 @@ Public Function InverterNotes(ByVal InverterID As String) As String: InverterNot
 Public Sub TestInverterIDs()
     MsgBox "Inverter IDs:" & vbCrLf & InverterIDs(), vbInformation, "SDEP Inverter ID Test"
 End Sub
+
+Public Sub TestInverterModels()
+    MsgBox "Inverter Models:" & vbCrLf & InverterModels(), vbInformation, "SDEP Inverter Models Test"
+End Sub
+

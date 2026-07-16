@@ -1,32 +1,5 @@
-Attribute VB_Name = "ImportCsvOnOpen"
+Attribute VB_Name = "ImportCsvOnOpen4"
 Option Explicit
-
-' SDEP CSV Import Module
-' Save the workbook as .xlsm, import this module, then add the Workbook_Open
-' call below to ThisWorkbook:
-'
-' Private Sub Workbook_Open()
-'     ImportAllSdepCsv
-' End Sub
-'
-' CSV files are expected in a Data folder next to the workbook:
-'   Data\Panels.csv
-'   Data\Inverters.csv
-'   Data\Batteries.csv
-'   Data\Lists.csv
-
-Public Sub ImportAllSdepCsv()
-    Application.ScreenUpdating = False
-    Application.DisplayAlerts = False
-
-    ImportCsvToSheet ThisWorkbook.Path & "\Data\Panels.csv", "DB_Panels"
-    ImportCsvToSheet ThisWorkbook.Path & "\Data\Inverters.csv", "DB_Inverters"
-    ImportCsvToSheet ThisWorkbook.Path & "\Data\Batteries.csv", "DB_Batteries"
-    ImportCsvToSheet ThisWorkbook.Path & "\Data\Lists.csv", "DB_Lists"
-
-    Application.DisplayAlerts = True
-    Application.ScreenUpdating = True
-End Sub
 
 Private Sub ImportCsvToSheet(ByVal csvPath As String, ByVal targetSheetName As String)
     Dim ws As Worksheet

@@ -1,0 +1,72 @@
+{
+  "header": {
+    "databaseName": "RSD",
+    "recordCount": 3,
+    "version": 1.0
+  },
+  "records": [
+    {
+      "Ballpark $/device": 45,
+      "Communication": "PLC",
+      "Connector": "MC4-compatible",
+      "Function": "Rapid Shutdown",
+      "ID": "R000001",
+      "Manufacturer": "Tigo Energy",
+      "Max Imp A": 22,
+      "Max Input V": 80,
+      "Max Isc A": 22,
+      "Max Module W": 725,
+      "Min Input V": 12,
+      "Model": "TS4-A-F",
+      "Modules/Device": 1,
+      "NEC 2017/2020": "Yes",
+      "Required Controller": "Tigo RSS Transmitter or compatible inverter-integrated transmitter",
+      "Source URL": "https://www.tigoenergy.com/product/ts4-a-f",
+      "Source/Notes": "Dedicated one-module RSD. Verify module compatibility and inverter/PVRSS listing before design.",
+      "UL PVRSS": "Yes",
+      "Warranty Years": 25
+    },
+    {
+      "Ballpark $/device": 75,
+      "Communication": "PLC",
+      "Connector": "MC4-compatible",
+      "Function": "Rapid Shutdown",
+      "ID": "R000002",
+      "Manufacturer": "Tigo Energy",
+      "Max Imp A": 25,
+      "Max Input V": 80,
+      "Max Isc A": 25,
+      "Max Module W": 1400,
+      "Min Input V": 16,
+      "Model": "TS4-A-2F",
+      "Modules/Device": 2,
+      "NEC 2017/2020": "Yes",
+      "Required Controller": "Tigo RSS Transmitter or compatible inverter-integrated transmitter",
+      "Source URL": "https://www.tigoenergy.com/product/ts4-a-2f",
+      "Source/Notes": "Two channels; ratings are per channel except total maximum module power. Verify exact module compatibility.",
+      "UL PVRSS": "Yes",
+      "Warranty Years": 25
+    },
+    {
+      "Ballpark $/device": 55,
+      "Communication": "PLC",
+      "Connector": "MC4-compatible",
+      "Function": "Rapid Shutdown",
+      "ID": "R000003",
+      "Manufacturer": "Tigo Energy",
+      "Max Imp A": 20,
+      "Max Input V": 0,
+      "Max Isc A": 25,
+      "Max Module W": 800,
+      "Min Input V": 0,
+      "Model": "TS4-X-F",
+      "Modules/Device": 1,
+      "NEC 2017/2020": "Yes",
+      "Required Controller": "Tigo RSS Transmitter with Pure Signal Technology or compatible integrated transmitter",
+      "Source URL": "https://www.tigoenergy.com/product/ts4-x-f",
+      "Source/Notes": "High-current RSD for newer modules. Product page lists 20 A Imp and 25 A Isc; enter voltage limits from the current UL datasheet before production use.",
+      "UL PVRSS": "Yes",
+      "Warranty Years": 25
+    }
+  ]
+}

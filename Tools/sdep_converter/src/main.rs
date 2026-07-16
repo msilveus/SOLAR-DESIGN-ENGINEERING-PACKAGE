@@ -2,8 +2,7 @@ use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::io::{self, Write};
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process;
 
 use csv::StringRecord;
@@ -14,11 +13,6 @@ mod validation;
 pub(crate) type SchemaData = Map<String, Value>;
 pub(crate) type InputData = Vec<Map<String, Value>>;
 pub(crate) type ValidationReport = BTreeMap<String, Value>;
-
-#[derive(Debug)]
-struct ManifestData {
-    imports: Vec<PathBuf>,
-}
 
 #[derive(Debug, Default, PartialEq, Eq)]
 struct CliArgs {
@@ -61,7 +55,7 @@ fn run_with_args(args: Vec<String>) -> Result<(), String> {
             }
 
             if args.all {
-                process_import_manifest(args.verbosity)?;
+                process_all_schemas(args.verbosity)?;
             } else if let (Some(schema), Some(input_data)) =
                 (args.schema.as_ref(), args.input_data.as_ref())
             {
@@ -260,149 +254,255 @@ fn resolve_data_path(path: &Path) -> PathBuf {
         return path.to_path_buf();
     }
 
+    let file_name = path.file_name().and_then(|value| value.to_str());
+    let mut search_dirs = vec![PathBuf::from("./Data"), PathBuf::from("./src/Data")];
+
     if let Some(exe_dir) = executable_directory() {
         let exe_candidate = exe_dir.join(path);
         if exe_candidate.exists() {
             return exe_candidate;
+        }
+
+        search_dirs.push(exe_dir.join("Data"));
+        search_dirs.push(exe_dir.join("src/Data"));
+    }
+
+    if let Some(file_name) = file_name {
+        for dir in search_dirs {
+            let candidate = dir.join(file_name);
+            if candidate.exists() {
+                return candidate;
+            }
+
+            if let Ok(entries) = fs::read_dir(&dir) {
+                for entry in entries.flatten() {
+                    let entry_path = entry.path();
+                    let matches_name = entry_path
+                        .file_name()
+                        .and_then(|value| value.to_str())
+                        .map(|value| value.eq_ignore_ascii_case(file_name))
+                        .unwrap_or(false);
+                    if matches_name {
+                        return entry_path;
+                    }
+                }
+            }
         }
     }
 
     path.to_path_buf()
 }
 
-fn process_import_manifest(verbosity: u8) -> Result<(), String> {
-    let manifest_path = locate_manifest_path()?;
-    if verbosity >= 1 {
-        println!("Reading import manifest {}", manifest_path.display());
+fn process_all_schemas(verbosity: u8) -> Result<(), String> {
+    let schema_paths = discover_schema_paths()?;
+
+    if schema_paths.is_empty() {
+        return Err("Could not find any schema files in ./schemas or ./src/schemas".to_string());
     }
 
-    let manifest = read_manifest_value(&manifest_path)?;
-    for import_path in manifest.imports {
-        let schema_path = resolve_manifest_schema_path(&manifest_path, &import_path);
-        if verbosity >= 1 {
-            println!("Processing schema {}", schema_path.display());
-        }
+    if verbosity >= 1 {
+        println!("Discovered {} schema file(s)", schema_paths.len());
+    }
 
-        let schema = read_schema_value(&schema_path, verbosity)?;
-        let input_path = schema
-            .get("input")
-            .and_then(Value::as_str)
-            .map(PathBuf::from)
-            .ok_or_else(|| {
-                format!(
-                    "Schema file {} must contain an `input` string",
-                    schema_path.display()
-                )
-            })?;
-        let output_path = schema
-            .get("output")
-            .and_then(Value::as_str)
-            .map(PathBuf::from)
-            .ok_or_else(|| {
-                format!(
-                    "Schema file {} must contain an `output` string",
-                    schema_path.display()
-                )
-            })?;
-
-        if verbosity >= 1 {
-            println!("Using input {}", input_path.display());
-            println!("Using output {}", output_path.display());
-        }
-
-        if !ensure_output_directory(&output_path)? {
-            continue;
-        }
-
-        let input_data = read_input_value(&input_path, verbosity)?;
-        let validation = validate_csv_data(&schema, &input_data, verbosity)?;
-        let passed = validation
-            .get("passed")
-            .and_then(Value::as_bool)
-            .unwrap_or(false);
-
-        if passed {
-            write_json_output(&output_path, &schema, &input_data, verbosity)?;
-            if verbosity >= 1 {
-                println!("Wrote JSON output to {}", output_file_name(&output_path));
-            }
-        } else {
-            println!("{validation:#?}");
-        }
+    for schema_path in schema_paths {
+        process_schema_file(&schema_path, verbosity)?;
     }
 
     Ok(())
 }
 
-fn locate_manifest_path() -> Result<PathBuf, String> {
-    let candidates = [
-        Path::new("./schemas/import_manifest.json"),
-        Path::new("./src/schemas/import_manifest.json"),
-    ];
+fn discover_schema_paths() -> Result<Vec<PathBuf>, String> {
+    let mut candidates = Vec::new();
+    let search_roots = [Path::new("./schemas"), Path::new("./src/schemas")];
 
-    let mut resolved_candidates = candidates
-        .into_iter()
-        .map(Path::to_path_buf)
-        .collect::<Vec<_>>();
+    for root in search_roots {
+        if let Ok(entries) = fs::read_dir(root) {
+            for entry in entries {
+                let entry = entry.map_err(|err| {
+                    format!("Failed to read schema directory {}: {err}", root.display())
+                })?;
+                let path = entry.path();
+                if path
+                    .extension()
+                    .and_then(|value| value.to_str())
+                    .map(|value| value.eq_ignore_ascii_case("json"))
+                    .unwrap_or(false)
+                    && path
+                        .file_name()
+                        .and_then(|value| value.to_str())
+                        .map(|value| value.ends_with("_schema.json"))
+                        .unwrap_or(false)
+                {
+                    candidates.push(path);
+                }
+            }
+        }
+    }
 
     if let Some(exe_dir) = executable_directory() {
-        resolved_candidates.push(exe_dir.join("schemas/import_manifest.json"));
-        resolved_candidates.push(exe_dir.join("src/schemas/import_manifest.json"));
+        for root in [exe_dir.join("schemas"), exe_dir.join("src/schemas")] {
+            if let Ok(entries) = fs::read_dir(&root) {
+                for entry in entries {
+                    let entry = entry.map_err(|err| {
+                        format!("Failed to read schema directory {}: {err}", root.display())
+                    })?;
+                    let path = entry.path();
+                    if path
+                        .extension()
+                        .and_then(|value| value.to_str())
+                        .map(|value| value.eq_ignore_ascii_case("json"))
+                        .unwrap_or(false)
+                        && path
+                            .file_name()
+                            .and_then(|value| value.to_str())
+                            .map(|value| value.ends_with("_schema.json"))
+                            .unwrap_or(false)
+                    {
+                        candidates.push(path);
+                    }
+                }
+            }
+        }
     }
 
-    resolved_candidates
-        .into_iter()
-        .find(|path| path.exists())
-        .ok_or_else(|| {
-            "Could not find import_manifest.json in ./schemas, ./src/schemas, or the application directory".to_string()
-        })
+    candidates.sort();
+    candidates.dedup();
+    Ok(candidates)
 }
 
-fn read_manifest_value(path: &Path) -> Result<ManifestData, String> {
-    let contents = fs::read_to_string(path)
-        .map_err(|err| format!("Failed to read manifest file {}: {err}", path.display()))?;
-    let value: Value = serde_json::from_str(&contents)
-        .map_err(|err| format!("Failed to parse manifest file {}: {err}", path.display()))?;
+fn process_schema_file(schema_path: &Path, verbosity: u8) -> Result<(), String> {
+    if verbosity >= 1 {
+        println!("Processing schema {}", schema_path.display());
+    }
 
-    let imports = value
-        .get("imports")
-        .and_then(Value::as_array)
+    let schema = read_schema_value(schema_path, verbosity)?;
+    let input_path = resolve_schema_input_path(schema_path, &schema)?;
+    let output_path = resolve_schema_output_path(schema_path, &schema)?;
+
+    if verbosity >= 1 {
+        println!("Using input {}", input_path.display());
+        println!("Using output {}", output_path.display());
+    }
+
+    if !ensure_output_directory(&output_path)? {
+        return Ok(());
+    }
+
+    let input_data = read_input_value(&input_path, verbosity)?;
+    let validation = validate_csv_data(&schema, &input_data, verbosity)?;
+    let passed = validation
+        .get("passed")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+
+    if passed {
+        write_json_output(&output_path, &schema, &input_data, verbosity)?;
+        if verbosity >= 1 {
+            println!("Wrote JSON output to {}", output_file_name(&output_path));
+        }
+    } else {
+        println!("{validation:#?}");
+    }
+
+    Ok(())
+}
+
+fn resolve_schema_input_path(schema_path: &Path, schema: &SchemaData) -> Result<PathBuf, String> {
+    if let Some(path) = schema.get("input").and_then(Value::as_str) {
+        return Ok(PathBuf::from(path));
+    }
+
+    let candidates = schema_input_candidates(schema_path, schema);
+    resolve_existing_data_path(&candidates).ok_or_else(|| {
+        format!(
+            "Schema file {} does not declare an `input` path and no matching CSV was found",
+            schema_path.display()
+        )
+    })
+}
+
+fn resolve_schema_output_path(schema_path: &Path, schema: &SchemaData) -> Result<PathBuf, String> {
+    if let Some(path) = schema.get("output").and_then(Value::as_str) {
+        return Ok(PathBuf::from(path));
+    }
+
+    let output_name = schema
+        .get("database")
+        .or_else(|| schema.get("name"))
+        .and_then(Value::as_str)
+        .map(normalize_file_stem)
+        .or_else(|| {
+            schema_path
+                .file_stem()
+                .and_then(|value| value.to_str())
+                .map(|value| value.trim_end_matches("_schema").to_string())
+        })
         .ok_or_else(|| {
             format!(
-                "Manifest file {} must contain a top-level `imports` array",
-                path.display()
+                "Schema file {} does not declare an `output` path and no output name could be inferred",
+                schema_path.display()
             )
-        })?
-        .iter()
-        .filter_map(Value::as_str)
-        .map(PathBuf::from)
-        .collect::<Vec<_>>();
+        })?;
 
-    Ok(ManifestData { imports })
+    Ok(PathBuf::from("DataJson").join(format!("{output_name}.json")))
 }
 
-fn resolve_manifest_schema_path(manifest_path: &Path, import_path: &Path) -> PathBuf {
-    let manifest_dir = manifest_path.parent().unwrap_or_else(|| Path::new("."));
-    let direct = manifest_dir.join(import_path);
-    if direct.exists() {
-        return direct;
+fn schema_input_candidates(schema_path: &Path, schema: &SchemaData) -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+
+    if let Some(database) = schema.get("database").and_then(Value::as_str) {
+        candidates.push(PathBuf::from("Data").join(format!("{database}.csv")));
+        candidates.push(PathBuf::from("Data").join(format!("{}.csv", normalize_file_stem(database))));
     }
 
-    let import_string = import_path.to_string_lossy();
-    if let Some(stripped) = import_string.strip_prefix("Schemas/") {
-        let alt = manifest_dir.join(stripped);
-        if alt.exists() {
-            return alt;
-        }
+    if let Some(stem) = schema_path.file_stem().and_then(|value| value.to_str()) {
+        let normalized_stem = stem.trim_end_matches("_schema");
+        candidates.push(PathBuf::from("Data").join(format!("{normalized_stem}.csv")));
+        candidates.push(PathBuf::from("Data").join(format!("{}.csv", normalize_file_stem(normalized_stem))));
     }
-    if let Some(stripped) = import_string.strip_prefix("Schemas\\") {
-        let alt = manifest_dir.join(stripped);
-        if alt.exists() {
-            return alt;
+
+    candidates
+}
+
+fn resolve_existing_data_path(candidates: &[PathBuf]) -> Option<PathBuf> {
+    for candidate in candidates {
+        if candidate.exists() {
+            return Some(candidate.to_path_buf());
         }
     }
 
-    import_path.to_path_buf()
+    let mut search_dirs = Vec::new();
+    search_dirs.push(PathBuf::from("./Data"));
+    search_dirs.push(PathBuf::from("./src/Data"));
+
+    if let Some(exe_dir) = executable_directory() {
+        search_dirs.push(exe_dir.join("Data"));
+        search_dirs.push(exe_dir.join("src/Data"));
+    }
+
+    for candidate in candidates {
+        let Some(file_name) = candidate.file_name().and_then(|value| value.to_str()) else {
+            continue;
+        };
+
+        for dir in &search_dirs {
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    let matches_name = path
+                        .file_name()
+                        .and_then(|value| value.to_str())
+                        .map(|value| value.eq_ignore_ascii_case(file_name))
+                        .unwrap_or(false);
+                    if matches_name {
+                        return Some(path);
+                    }
+                }
+            }
+        }
+    }
+
+    None
 }
 
 fn csv_record_to_object(
@@ -480,7 +580,7 @@ fn convert_input_data_to_json(
     let version = schema
         .get("version")
         .cloned()
-        .ok_or_else(|| "Schema is missing a top-level `version` value".to_string())?;
+        .unwrap_or_else(|| Value::from(1.0));
     let mut rows = Vec::with_capacity(input_data.len());
 
     for row in input_data {
@@ -644,6 +744,23 @@ fn output_file_name(path: &Path) -> String {
         .unwrap_or_else(|| path.display().to_string())
 }
 
+fn normalize_file_stem(value: &str) -> String {
+    let mut normalized = String::with_capacity(value.len());
+    for ch in value.chars() {
+        if ch.is_ascii_alphanumeric() {
+            normalized.push(ch.to_ascii_lowercase());
+        } else {
+            normalized.push('_');
+        }
+    }
+
+    while normalized.contains("__") {
+        normalized = normalized.replace("__", "_");
+    }
+
+    normalized.trim_matches('_').to_string()
+}
+
 fn schema_variable_name(path: &Path) -> Result<String, String> {
     let stem = path
         .file_stem()
@@ -669,7 +786,7 @@ fn print_usage() {
         "  Single data conversion:\n    sdep_converter --schema ./schemas/panels_schema.json --input ./Data/panels.csv --output ./Data/panels.json"
     );
     eprintln!(
-        "  Read the manifest and process all data conversions:\n    sdep_converter --all"
+        "  Process every schema in the project:\n    sdep_converter --all"
     );
     eprintln!();
     eprintln!("Options:");
@@ -677,7 +794,7 @@ fn print_usage() {
     eprintln!("  --schema <file>  Load a single schema JSON file");
     eprintln!("  --input <file>   Load a single CSV input file");
     eprintln!("  --output <file>  Write the converted JSON output file");
-    eprintln!("  --all            Read the import manifest and process every conversion");
+    eprintln!("  --all            Discover schema files and process every conversion");
 }
 
 #[cfg(test)]
@@ -808,23 +925,44 @@ mod tests {
     }
 
     #[test]
-    fn reads_import_manifest_entries() {
-        let manifest_path = locate_manifest_path().expect("manifest path should exist");
-        let manifest = read_manifest_value(&manifest_path)
-            .expect("manifest should parse");
-        assert_eq!(manifest.imports.len(), 3);
+    fn discovers_schema_files_for_all_mode() {
+        let schema_paths = discover_schema_paths().expect("schema discovery should succeed");
+        assert!(schema_paths.len() >= 7);
+        assert!(schema_paths.iter().any(|path| {
+            path.file_name()
+                .and_then(|value| value.to_str())
+                .map(|value| value == "battery_disconnects_schema.json")
+                .unwrap_or(false)
+        }));
+        assert!(schema_paths.iter().any(|path| {
+            path.file_name()
+                .and_then(|value| value.to_str())
+                .map(|value| value == "pv_disconnects_schema.json")
+                .unwrap_or(false)
+        }));
+        assert!(schema_paths.iter().any(|path| {
+            path.file_name()
+                .and_then(|value| value.to_str())
+                .map(|value| value == "rsd_schema.json")
+                .unwrap_or(false)
+        }));
     }
 
     #[test]
-    fn resolves_manifest_schema_path_from_schemas_prefix() {
-        let manifest_path = locate_manifest_path().expect("manifest path should exist");
-        let resolved =
-            resolve_manifest_schema_path(&manifest_path, Path::new("Schemas/panels_schema.json"));
-        let expected = manifest_path
-            .parent()
-            .unwrap_or_else(|| Path::new("."))
-            .join("panels_schema.json");
-        assert_eq!(resolved, expected);
+    fn infers_schema_paths_for_new_files() {
+        let schema_path = Path::new("src/schemas/battery_disconnects_schema.json");
+        let schema = read_schema_value(schema_path, 0).expect("schema should parse");
+        let input_path = resolve_schema_input_path(schema_path, &schema)
+            .expect("input path should be inferred");
+        let output_path = resolve_schema_output_path(schema_path, &schema)
+            .expect("output path should be inferred");
+
+        assert!(input_path
+            .file_name()
+            .and_then(|value| value.to_str())
+            .map(|value| value.eq_ignore_ascii_case("Battery_Disconnect_Switches.csv"))
+            .unwrap_or(false));
+        assert_eq!(output_path, PathBuf::from("DataJson/battery_disconnect_switches.json"));
     }
 
     #[test]

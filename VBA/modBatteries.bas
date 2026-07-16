@@ -13,6 +13,7 @@ Option Explicit
     Public Declare PtrSafe Function sdep_get_batteries_ballpark_battery Lib "sdep_engine.dll" (ByVal id As String, ByRef out_value As Double) As Long
     Public Declare PtrSafe Function sdep_get_batteries_manufacturer Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_batteries_model Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
+    Public Declare PtrSafe Function sdep_get_batteries_model_list Lib "sdep_engine.dll" (ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_batteries_chemistry Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_batteries_closed_loop_with_sol_ark Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
     Public Declare PtrSafe Function sdep_get_batteries_comm_interface Lib "sdep_engine.dll" (ByVal id As String, ByVal buffer As LongPtr, ByVal buffer_len As LongPtr) As Long
@@ -21,7 +22,7 @@ Option Explicit
 
 Private Function BNum(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As Double
     Dim status As Long, value As Double
-    EnsureEngineInitialized
+    EnsureDllInitialized
     Select Case selector
         Case 1: status = sdep_get_batteries_usable_kwh(id, value)
         Case 2: status = sdep_get_batteries_nominal_v(id, value)
@@ -39,7 +40,7 @@ End Function
 
 Private Function BStr(ByVal id As String, ByVal selector As Long, ByVal sourceName As String) As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     Select Case selector
         Case 1: status = sdep_get_batteries_manufacturer(id, StrPtr(buf), Len(buf))
@@ -55,10 +56,18 @@ End Function
 
 Public Function BatteryIDs() As String
     Dim status As Long, buf As String
-    EnsureEngineInitialized
+    EnsureDllInitialized
     buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
     status = sdep_get_batteries_ids(StrPtr(buf), Len(buf))
     BatteryIDs = ReadUtf16String(status, buf, "BatteryIDs")
+End Function
+
+Public Function BatteryModels() As String
+    Dim status As Long, buf As String
+    EnsureDllInitialized
+    buf = String$(SDEP_STRING_BUFFER_LEN, vbNullChar)
+    status = sdep_get_batteries_model_list(StrPtr(buf), Len(buf))
+    BatteryModels = ReadUtf16String(status, buf, "BatteryModels")
 End Function
 
 Public Function BatteryUsableKwh(ByVal BatteryID As String) As Double: BatteryUsableKwh = BNum(BatteryID, 1, "BatteryUsableKwh"): End Function
@@ -79,3 +88,8 @@ Public Function BatteryNotes(ByVal BatteryID As String) As String: BatteryNotes 
 Public Sub TestBatteryIDs()
     MsgBox "Battery IDs:" & vbCrLf & BatteryIDs(), vbInformation, "SDEP Battery ID Test"
 End Sub
+
+Public Sub TestBatteryModelList()
+    MsgBox "Battery Model List:" & vbCrLf & BatteryModels(), vbInformation, "SDEP Battery Model Test"
+End Sub
+

@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use regex::Regex;
 use serde_json::{Map, Value};
 
 use crate::{parse_json_bool, InputData, SchemaData, ValidationReport};
@@ -25,6 +26,22 @@ pub fn validate_database(
             validator.validate()
         }
         "battery" | "batteries" => {
+            let validator = BatteryValidator::new(schema, input_data, verbosity);
+            validator.validate()
+        }
+        "optimizer" | "optimizers" => {
+            let validator = BatteryValidator::new(schema, input_data, verbosity);
+            validator.validate()
+        }
+        "battery disconnect switch" | "battery disconnect switches" => {
+            let validator = BatteryValidator::new(schema, input_data, verbosity);
+            validator.validate()
+        }
+        "pv disconnect switch" | "pv disconnect switches" => {
+            let validator = BatteryValidator::new(schema, input_data, verbosity);
+            validator.validate()
+        }
+        "rsd" => {
             let validator = BatteryValidator::new(schema, input_data, verbosity);
             validator.validate()
         }
@@ -509,7 +526,7 @@ fn validate_field(
     match field_type {
         "string" => {
             if let Some(pattern) = field_object.get("pattern").and_then(Value::as_str) {
-                let passed = matches_pattern(raw_value, pattern);
+                let passed = matches_pattern(raw_value, pattern)?;
                 log_validation_result(
                     verbosity,
                     row_number,
@@ -860,89 +877,9 @@ fn normalize_database_name(value: &str) -> String {
     value.trim().to_ascii_lowercase()
 }
 
-fn matches_pattern(value: &str, pattern: &str) -> bool {
-    let pattern = pattern.strip_prefix('^').unwrap_or(pattern);
-    let pattern = pattern.strip_suffix('$').unwrap_or(pattern);
-    let mut value_chars = value.chars().peekable();
-    let mut pattern_chars = pattern.chars().peekable();
-
-    while let Some(pattern_char) = pattern_chars.next() {
-        if pattern_char == '[' {
-            let mut class = String::new();
-            while let Some(&next_char) = pattern_chars.peek() {
-                pattern_chars.next();
-                if next_char == ']' {
-                    break;
-                }
-                class.push(next_char);
-            }
-
-            let repeat = parse_repeat(&mut pattern_chars);
-            for _ in 0..repeat {
-                let Some(value_char) = value_chars.next() else {
-                    return false;
-                };
-                if !class_matches(value_char, &class) {
-                    return false;
-                }
-            }
-            continue;
-        }
-
-        let repeat = parse_repeat(&mut pattern_chars);
-        for _ in 0..repeat {
-            let Some(value_char) = value_chars.next() else {
-                return false;
-            };
-            if value_char != pattern_char {
-                return false;
-            }
-        }
-    }
-
-    value_chars.next().is_none()
-}
-
-fn parse_repeat<I>(chars: &mut std::iter::Peekable<I>) -> usize
-where
-    I: Iterator<Item = char>,
-{
-    if chars.peek() != Some(&'{') {
-        return 1;
-    }
-
-    chars.next();
-    let mut digits = String::new();
-    while let Some(&next_char) = chars.peek() {
-        chars.next();
-        if next_char == '}' {
-            break;
-        }
-        digits.push(next_char);
-    }
-
-    digits.parse::<usize>().unwrap_or(1)
-}
-
-fn class_matches(value: char, class: &str) -> bool {
-    let mut chars = class.chars().peekable();
-
-    while let Some(start) = chars.next() {
-        if chars.peek() == Some(&'-') {
-            chars.next();
-            let Some(end) = chars.next() else {
-                return false;
-            };
-            if start <= value && value <= end {
-                return true;
-            }
-            continue;
-        }
-
-        if value == start {
-            return true;
-        }
-    }
-
-    false
+fn matches_pattern(value: &str, pattern: &str) -> Result<bool, String> {
+    let regex = Regex::new(pattern).map_err(|err| {
+        format!("Invalid regex pattern `{pattern}` in schema: {err}")
+    })?;
+    Ok(regex.is_match(value))
 }

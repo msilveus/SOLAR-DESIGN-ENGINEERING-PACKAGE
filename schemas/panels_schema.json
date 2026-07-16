@@ -1,0 +1,102 @@
+{
+  "database": "Panels",
+  "version": 1.0,
+  "input": "Data/Panels.csv",
+  "output": "DataJson/panels.json",
+  "primaryKey": "ID",
+  "requiredFields": [
+    "ID",
+    "Manufacturer",
+    "Model",
+    "STC W",
+    "Voc V",
+    "Vmp V",
+    "Isc A",
+    "Imp A",
+    "Voc Temp %/C"
+  ],
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^P[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "STC W": {
+      "type": "number",
+      "min": 1,
+      "units": "W"
+    },
+    "Voc V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Vmp V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Max System V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Isc A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Imp A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Series Fuse A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Length mm": {
+      "type": "number",
+      "min": 1000,
+      "max": 2200,
+      "units": "mm"
+    },
+    "Width mm": {
+      "type": "number",
+      "min": 900,
+      "max": 1300,
+      "units": "mm"
+    },
+    "Weight lb": {
+      "type": "number",
+      "min": 20,
+      "max": 80,
+      "units": "lb"
+    },
+    "Voc Temp %/C": {
+      "type": "number",
+      "max": 0,
+      "units": "%/C"
+    },
+    "Pmax Temp %/C": {
+      "type": "number",
+      "max": 0,
+      "units": "%/C"
+    },
+    "Ballpark $/panel": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    }
+  }
+}

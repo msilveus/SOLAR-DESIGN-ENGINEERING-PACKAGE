@@ -1,0 +1,78 @@
+{
+  "database": "PV Disconnect Switches",
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^D[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "Device Type": {
+      "type": "string",
+      "required": true
+    },
+    "Fused": {
+      "type": "string",
+      "pattern": "^(Yes|No)$"
+    },
+    "Rated DC V": {
+      "type": "number",
+      "min": 1,
+      "units": "VDC"
+    },
+    "Rated Continuous A": {
+      "type": "number",
+      "min": 1,
+      "units": "A"
+    },
+    "Poles": {
+      "type": "number",
+      "min": 1
+    },
+    "Enclosure": {
+      "type": "string",
+      "required": true
+    },
+    "Outdoor Rated": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Lockable Handle": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Visible Blade": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "UL Listed": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Suitable for PV": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Ballpark $/switch": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Source URL": {
+      "type": "string",
+      "optional": true
+    },
+    "Source/Notes": {
+      "type": "string",
+      "optional": true
+    }
+  }
+}

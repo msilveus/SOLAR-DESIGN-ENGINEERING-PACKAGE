@@ -1,0 +1,76 @@
+{
+  "database": "Battery Disconnect Switches",
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^K[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "Device Type": {
+      "type": "string",
+      "required": true
+    },
+    "Rated DC V": {
+      "type": "number",
+      "min": 1,
+      "units": "VDC"
+    },
+    "Continuous A": {
+      "type": "number",
+      "min": 1,
+      "units": "A"
+    },
+    "Intermittent A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Interrupt Rating A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Poles": {
+      "type": "number",
+      "min": 1
+    },
+    "Remote Operated": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Overcurrent Protection": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Enclosure/Ingress": {
+      "type": "string",
+      "required": true
+    },
+    "UL Listed": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Ballpark $/device": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Source URL": {
+      "type": "string",
+      "optional": true
+    },
+    "Source/Notes": {
+      "type": "string",
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "database": "Optimizers",
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^O[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "Optimizer Type": {
+      "type": "string",
+      "required": true
+    },
+    "Modules/Device": {
+      "type": "number",
+      "min": 1
+    },
+    "Max Module W": {
+      "type": "number",
+      "min": 1,
+      "units": "W"
+    },
+    "Min Input V": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "V"
+    },
+    "Max Input V": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "V"
+    },
+    "Max Imp A": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "A"
+    },
+    "Max Isc A": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "A"
+    },
+    "Max Output V": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "V"
+    },
+    "Max Output A": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "A"
+    },
+    "Peak Efficiency %": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "optional": true,
+      "units": "%"
+    },
+    "Optimization": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Monitoring": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Rapid Shutdown": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Communication": {
+      "type": "string",
+      "required": true
+    },
+    "Required Controller": {
+      "type": "string",
+      "required": true
+    },
+    "Compatible Inverters": {
+      "type": "string",
+      "required": true
+    },
+    "Connector": {
+      "type": "string",
+      "required": true
+    },
+    "Warranty Years": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "years"
+    },
+    "Ballpark $/device": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Verification Status": {
+      "type": "string",
+      "required": true
+    },
+    "Source URL": {
+      "type": "string",
+      "optional": true
+    },
+    "Source/Notes": {
+      "type": "string",
+      "optional": true
+    }
+  }
+}

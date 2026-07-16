@@ -1,0 +1,8 @@
+{
+  "version": 1.0,
+  "imports": [
+    "Schemas/panels_schema.json",
+    "Schemas/batteries_schema.json",
+    "Schemas/inverters_schema.json"
+  ]
+}

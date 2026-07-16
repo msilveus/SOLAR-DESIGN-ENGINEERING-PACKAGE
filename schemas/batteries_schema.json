@@ -1,0 +1,138 @@
+{
+  "version": 1.0,
+  "database": "Batteries",
+  "input": "Data/Batteries.csv",
+  "output": "DataJson/batteries.json",
+  "primaryKey": "ID",
+  "requiredFields": [
+    "ID",
+    "Manufacturer",
+    "Model",
+    "Chemistry",
+    "Usable kWh",
+    "Nominal V",
+    "Capacity Ah",
+    "Cont Charge A",
+    "Cont Discharge A"
+  ],
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^B[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "Chemistry": {
+      "type": "string",
+      "required": true
+    },
+    "Usable kWh": {
+      "type": "number",
+      "min": 0,
+      "units": "kWh"
+    },
+    "Nominal V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Capacity Ah": {
+      "type": "number",
+      "min": 0,
+      "units": "Ah"
+    },
+    "Cont Charge A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Cont Discharge A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Peak A": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "A"
+    },
+    "Weight lb": {
+      "type": "number",
+      "min": 0,
+      "max": 1000,
+      "optional": true,
+      "units": "lb"
+    },
+    "Closed Loop with Sol-Ark": {
+      "type": "string",
+      "optional": true
+    },
+    "Comm/Interface": {
+      "type": "string",
+      "optional": true
+    },
+    "Ballpark $/battery": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Notes": {
+      "type": "string",
+      "optional": true
+    }
+  },
+  "engineeringChecks": [
+    {
+      "name": "Usable kWh > 0",
+      "type": "greater_than",
+      "field": "Usable kWh",
+      "value": 0,
+      "severity": "error"
+    },
+    {
+      "name": "Nominal V > 0",
+      "type": "greater_than",
+      "field": "Nominal V",
+      "value": 0,
+      "severity": "error"
+    },
+    {
+      "name": "Capacity Ah > 0",
+      "type": "greater_than",
+      "field": "Capacity Ah",
+      "value": 0,
+      "severity": "error"
+    },
+    {
+      "name": "Cont Charge A > 0",
+      "type": "greater_than",
+      "field": "Cont Charge A",
+      "value": 0,
+      "severity": "error"
+    },
+    {
+      "name": "Cont Discharge A > 0",
+      "type": "greater_than",
+      "field": "Cont Discharge A",
+      "value": 0,
+      "severity": "error"
+    },
+    {
+      "name": "Peak A >= Cont Discharge A",
+      "type": "field_greater_equal",
+      "left": "Peak A",
+      "right": "Cont Discharge A",
+      "severity": "warning",
+      "optional": true
+    }
+  ]
+}

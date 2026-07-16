@@ -1,0 +1,90 @@
+{
+  "database": "RSD",
+  "fields": {
+    "ID": {
+      "type": "string",
+      "pattern": "^R[0-9]{6}$",
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string",
+      "required": true
+    },
+    "Model": {
+      "type": "string",
+      "required": true
+    },
+    "Function": {
+      "type": "string",
+      "required": true
+    },
+    "Modules/Device": {
+      "type": "number",
+      "min": 1
+    },
+    "Max Module W": {
+      "type": "number",
+      "min": 1,
+      "units": "W"
+    },
+    "Min Input V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Max Input V": {
+      "type": "number",
+      "min": 0,
+      "units": "V"
+    },
+    "Max Imp A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Max Isc A": {
+      "type": "number",
+      "min": 0,
+      "units": "A"
+    },
+    "Communication": {
+      "type": "string",
+      "required": true
+    },
+    "Required Controller": {
+      "type": "string",
+      "required": true
+    },
+    "Connector": {
+      "type": "string",
+      "required": true
+    },
+    "UL PVRSS": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "NEC 2017/2020": {
+      "type": "string",
+      "pattern": "^(Yes|No|Verify)$"
+    },
+    "Warranty Years": {
+      "type": "number",
+      "min": 0,
+      "units": "years"
+    },
+    "Ballpark $/device": {
+      "type": "number",
+      "min": 0,
+      "optional": true,
+      "units": "USD"
+    },
+    "Source URL": {
+      "type": "string",
+      "optional": true
+    },
+    "Source/Notes": {
+      "type": "string",
+      "optional": true
+    }
+  }
+}

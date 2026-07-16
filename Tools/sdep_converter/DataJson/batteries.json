@@ -1,0 +1,77 @@
+{
+  "header": {
+    "databaseName": "Batteries",
+    "recordCount": 4,
+    "version": 1.0
+  },
+  "records": [
+    {
+      "Ballpark $/battery": 4900,
+      "Capacity Ah": 314,
+      "Chemistry": "LiFePO4",
+      "Closed Loop with Sol-Ark": "Yes",
+      "Comm/Interface": "Closed-loop / LYNK or native per current integration",
+      "Cont Charge A": 160,
+      "Cont Discharge A": 160,
+      "ID": "B000001",
+      "Manufacturer": "Discover",
+      "Model": "Discover Helios ESS",
+      "Nominal V": 51.2,
+      "Notes": "Preferred current candidate; verify integration kit/firmware",
+      "Peak A": 400,
+      "Usable kWh": 16,
+      "Weight lb": 330
+    },
+    {
+      "Ballpark $/battery": 3700,
+      "Capacity Ah": 314,
+      "Chemistry": "LiFePO4",
+      "Closed Loop with Sol-Ark": "Yes",
+      "Comm/Interface": "CAN/RS485",
+      "Cont Charge A": 160,
+      "Cont Discharge A": 160,
+      "ID": "B000002",
+      "Manufacturer": "Pytes",
+      "Model": "Pytes V16",
+      "Nominal V": 51.2,
+      "Notes": "Strong alternative; verify listing with installer",
+      "Peak A": 200,
+      "Usable kWh": 16,
+      "Weight lb": 320
+    },
+    {
+      "Ballpark $/battery": 7200,
+      "Capacity Ah": 375,
+      "Chemistry": "LiFePO4",
+      "Closed Loop with Sol-Ark": "Yes",
+      "Comm/Interface": "CAN/RS485",
+      "Cont Charge A": 200,
+      "Cont Discharge A": 200,
+      "ID": "B000003",
+      "Manufacturer": "HomeGrid",
+      "Model": "Stack'd Series 19.2",
+      "Nominal V": 51.2,
+      "Notes": "Expandable modular system",
+      "Peak A": 300,
+      "Usable kWh": 19.2,
+      "Weight lb": 500
+    },
+    {
+      "Ballpark $/battery": 5200,
+      "Capacity Ah": 314,
+      "Chemistry": "LiFePO4",
+      "Closed Loop with Sol-Ark": "Verify",
+      "Comm/Interface": "CAN/RS485",
+      "Cont Charge A": 160,
+      "Cont Discharge A": 160,
+      "ID": "B000004",
+      "Manufacturer": "Fortress",
+      "Model": "eBoost 16",
+      "Nominal V": 51.2,
+      "Notes": "Replacement direction for eVault; verify Sol-Ark closed loop",
+      "Peak A": 200,
+      "Usable kWh": 16,
+      "Weight lb": 320
+    }
+  ]
+}
